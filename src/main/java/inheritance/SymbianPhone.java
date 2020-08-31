@@ -8,9 +8,10 @@ public interface SymbianPhone {
      *
      * Declare 3 methods sendText(), makeCall(), contactList()
      * Can a method contains method body in Interface?
-     * Ans:
+     * Ans: Yes, a method which is decalred as default can have method body in interface.
      *
      * */
+    public void contactList();
 
     public void sendText();
 

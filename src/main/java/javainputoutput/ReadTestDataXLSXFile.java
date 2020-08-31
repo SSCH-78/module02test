@@ -1,5 +1,8 @@
 package javainputoutput;
 
+import javainputoutput.ReadTestDataXLSXFile;
+import utility.XLSXFileReader;
+
 public class ReadTestDataXLSXFile {
 
     /**
@@ -14,4 +17,23 @@ public class ReadTestDataXLSXFile {
      * necessary components of it.
      *
      * */
+    public static void main(String[] args) throws Exception {
+
+        XLSXFileReader xlsxFileReader=new XLSXFileReader();
+        String path = "D:\\myExcel.xlsx";
+        xlsxFileReader.setExcelFile(path);
+        String[][] mydata=xlsxFileReader.getExcelSheetData("myExcel.xlsx");
+
+        for (int i = 0; i < mydata.length; i++) { //this equals to the row in our matrix.
+            for (int j = 0; j < mydata[i].length; j++) { //this equals to the column in each row.
+                System.out.print(mydata[i][j] + " ");
+            }
+            System.out.println(); //change line on console as row comes to end in the matrix.
+        }
+
+
+
+    }
+
+
 }

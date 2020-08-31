@@ -4,53 +4,49 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class DbConnection {
 
     /**
-     *
      * This is a helper class to interact with Database tables
      * You are free to enhance this class as needed
-     *
-     * */
+     */
 
 
-   static Connection connect = null;
-   static Statement statement = null;
-   static ResultSet resultSet = null;
-   static PreparedStatement ps = null;
+    static Connection connect = null;
+    static Statement statement = null;
+    static ResultSet resultSet = null;
+    static PreparedStatement ps = null;
 
 
-   public static Properties loadProperties() throws IOException {
+    public static Properties loadProperties() throws IOException {
 
-       InputStream inputStream = new FileInputStream("src/main/resources/secret.properties");
+        InputStream inputStream = new FileInputStream("src/main/resources/secret.properties");
 
-       Properties properties = new Properties();
-       properties.load(inputStream);
-       inputStream.close();
-       return properties;
-   }
+        Properties properties = new Properties();
+        properties.load(inputStream);
+        inputStream.close();
+        return properties;
+    }
 
     public static void connectPostgresql() throws ClassNotFoundException, SQLException, IOException {
 
-      Properties properties = loadProperties();
+        Properties properties = loadProperties();
 
         String url = properties.getProperty("db.url");
         String userName = properties.getProperty("db.userName");
         String passWord = properties.getProperty("db.password");
 
-         connect = DriverManager.getConnection(url,userName,passWord);
+        connect = DriverManager.getConnection(url, userName, passWord);
 
         System.out.println("Database Connected");
 
     }
+
     /**
      * Read database
-     *
-     * */
+     */
 
     public static List<String> readDatabase(String tableNmae, String nameOfColumn1) throws SQLException, ClassNotFoundException, IOException {
 
@@ -58,7 +54,7 @@ public class DbConnection {
 
         connectPostgresql();
         statement = connect.createStatement();
-        resultSet = statement.executeQuery("select * from "+ tableNmae);
+        resultSet = statement.executeQuery("select * from " + tableNmae);
         list = getResultSetData(nameOfColumn1);
         return list;
     }
@@ -67,7 +63,7 @@ public class DbConnection {
 
         List<String> dataList = new ArrayList<>();
 
-        while (resultSet.next()){
+        while (resultSet.next()) {
 
             String cell1 = resultSet.getString(nameOfColumn1);
 
@@ -80,28 +76,30 @@ public class DbConnection {
 
     }
 
-    public static List<String> readDatabase(String tableNmae, String nameOfColumn1,String nameOfColumn2, String nameOfColumn3) throws SQLException, ClassNotFoundException, IOException {
+    public static List<String> readDatabase(String tableNmae, String nameOfColumn1, String nameOfColumn2, String nameOfColumn3) throws SQLException, ClassNotFoundException, IOException {
 
         List<String> list = new ArrayList<>();
 
         connectPostgresql();
         statement = connect.createStatement();
-        resultSet = statement.executeQuery("select * from "+ tableNmae);
-        list = getResultSetData(nameOfColumn1,nameOfColumn2,nameOfColumn3);
+        resultSet = statement.executeQuery("select * from " + tableNmae);
+        list = getResultSetData(nameOfColumn1, nameOfColumn2, nameOfColumn3);
         return list;
     }
 
-    public static List<String> getResultSetData(String nameOfColumn1,String nameOfColumn2, String nameOfColumn3 ) throws SQLException {
+    public static List<String> getResultSetData(String nameOfColumn1, String nameOfColumn2, String nameOfColumn3) throws SQLException {
 
         List<String> dataList = new ArrayList<>();
 
-        while (resultSet.next()){
+        while (resultSet.next()) {
 
             String cell1 = resultSet.getString(nameOfColumn1);
             String cell2 = resultSet.getString(nameOfColumn2);
             String cell3 = resultSet.getString(nameOfColumn3);
 
-            dataList.add(cell1); dataList.add(cell2); dataList.add(cell3);
+            dataList.add(cell1);
+            dataList.add(cell2);
+            dataList.add(cell3);
 
         }
 
@@ -110,17 +108,15 @@ public class DbConnection {
     }
 
     /**
-     *
      * Create Table
-     *
-     * */
+     */
 
-    public static void createTableFromStringToPostgresql(String tableName, String columnName){
+    public static void createTableFromStringToPostgresql(String tableName, String columnName) {
         try {
             connectPostgresql();
-            ps = connect.prepareStatement("DROP TABLE IF EXISTS `"+tableName+"`;");
+            ps = connect.prepareStatement("DROP TABLE IF EXISTS `" + tableName + "`;");
             ps.executeUpdate();
-            ps = connect.prepareStatement("CREATE TABLE `"+tableName+"` (`ID` int(11) NOT NULL AUTO_INCREMENT,`"+columnName+"` varchar(2500) DEFAULT NULL,  PRIMARY KEY (`ID`) );");
+            ps = connect.prepareStatement("CREATE TABLE `" + tableName + "` (`ID` int(11) NOT NULL AUTO_INCREMENT,`" + columnName + "` varchar(2500) DEFAULT NULL,  PRIMARY KEY (`ID`) );");
             ps.executeUpdate();
 
         } catch (IOException e) {
@@ -134,11 +130,48 @@ public class DbConnection {
     }
 
     /**
-     *
      * Insert data to a existing table
-     *
-     * */
-    public static void insertDataFromArrayListToPostgresql(List<String> list,String tableName, String columnName)
+     */
+    public static void insertDataFromHashSetToPostgresql(HashSet<String> list, String tableName, String columnName) {
+        try {
+            connectPostgresql();
+
+            for (String st : list) {
+                ps = connect.prepareStatement("INSERT INTO " + tableName + " ( " + columnName + " ) VALUES(?)");
+                ps.setString(1, st);
+                ps.executeUpdate();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void insertDataFromHashmAPToPostgresql(Map<Integer, String> map, String tableName, String columnName) {
+        try {
+            connectPostgresql();
+
+            for (String st : (map.values())) {
+                ps = connect.prepareStatement("INSERT INTO " + tableName + " ( " + columnName + " ) VALUES(?)");
+                ps.setString(1, st);
+                ps.executeUpdate();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void insertDataFromArrayListToMySql(List<String> list,String tableName, String columnName)
     {
         try {
             connectPostgresql();
@@ -157,7 +190,5 @@ public class DbConnection {
             e.printStackTrace();
         }
     }
-
-
 }
 
